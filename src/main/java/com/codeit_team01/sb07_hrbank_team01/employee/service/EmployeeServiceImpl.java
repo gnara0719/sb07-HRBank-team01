@@ -208,15 +208,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         LocalDate now = LocalDate.now();
         String unitValue = (unit == null || unit.isEmpty()) ? "month" : unit.toLowerCase();
 
-        LocalDate fromDate = from;
-        LocalDate toDate = to;
+        LocalDate fromDate;
+        LocalDate toDate;
 
-        if(fromDate == null && toDate == null) {
-            unitValue = "month";
+        if(from == null && to == null) {
             toDate = now;
-            fromDate = now.minusMonths(11);
-        } else if (fromDate == null) {
-            toDate = (toDate != null) ? toDate : now;
             fromDate = switch (unitValue) {
                 case "day" -> toDate.minusDays(11);
                 case "week" -> toDate.minusWeeks(11);
@@ -225,8 +221,22 @@ public class EmployeeServiceImpl implements EmployeeService {
                 case "year" -> toDate.minusYears(11);
                 default -> throw new IllegalArgumentException("지원하는 날짜가 아닙니다.");
             };
-        } else if(toDate == null) {
+        } else if (from == null) {
+            toDate = to;
+            fromDate = switch (unitValue) {
+                case "day" -> toDate.minusDays(11);
+                case "week" -> toDate.minusWeeks(11);
+                case "month" -> toDate.minusMonths(11);
+                case "quarter" -> toDate.minusMonths(3L * 11);
+                case "year" -> toDate.minusYears(11);
+                default -> throw new IllegalArgumentException("지원하는 날짜가 아닙니다.");
+            };
+        } else if(to == null) {
+            fromDate = from;
             toDate = now;
+        } else {
+            fromDate = from;
+            toDate = to;
         }
 
         final String finalUnit = unitValue;

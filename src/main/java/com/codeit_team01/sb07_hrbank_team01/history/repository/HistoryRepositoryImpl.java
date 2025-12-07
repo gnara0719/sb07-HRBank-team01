@@ -91,9 +91,9 @@ public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
     }
 
     //사번 부분 일치
-    private BooleanExpression employeeNumberContains(String employeeNumber) {
-        return (employeeNumber == null || employeeNumber.isBlank())
-                ? null : employee.employeeNo.contains(employeeNumber);
+    private BooleanExpression employeeNumberContains(String employeeNo) {
+        return (employeeNo == null || employeeNo.isBlank())
+                ? null : history.employeeNo.contains(employeeNo);
     }
     //메모 부분 일치
     private BooleanExpression memoContains(String memo) {
