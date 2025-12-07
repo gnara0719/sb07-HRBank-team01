@@ -2,7 +2,10 @@ package com.codeit_team01.sb07_hrbank_team01.department.repository;
 
 import com.codeit_team01.sb07_hrbank_team01.department.entity.Department;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -13,9 +16,18 @@ import java.time.LocalDate;
 import static com.codeit_team01.sb07_hrbank_team01.department.entity.QDepartment.department;
 
 
+
 public class DepartmentRepositoryImpl implements DepartmentRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
+
+    private static final String KOR_COLLATE = "ko_kr";
+    private StringExpression nameKo() {
+        return Expressions.stringTemplate(
+                "({0} COLLATE " + KOR_COLLATE + ")",
+                department.name
+        );
+    }
 
     public DepartmentRepositoryImpl(JPAQueryFactory queryFactory) {
         this.queryFactory = queryFactory;
@@ -123,23 +135,24 @@ public class DepartmentRepositoryImpl implements DepartmentRepositoryCustom {
             case "name":
             default: {
                 String name = cursor.trim();
+                StringExpression nameExpr = nameKo();
                 if (asc) {
                     if (hasIdAfter) {
                         bb.and(
-                                department.name.gt(name)
-                                        .or(department.name.eq(name).and(department.id.gt(idAfter)))
+                                nameExpr.gt(name)
+                                        .or(nameExpr.eq(name).and(department.id.gt(idAfter)))
                         );
                     } else {
-                        bb.and(department.name.gt(name));
+                        bb.and(nameExpr.gt(name));
                     }
                 } else {
                     if (hasIdAfter) {
                         bb.and(
-                                department.name.lt(name)
-                                        .or(department.name.eq(name).and(department.id.lt(idAfter)))
+                                nameExpr.lt(name)
+                                        .or(nameExpr.eq(name).and(department.id.lt(idAfter)))
                         );
                     } else {
-                        bb.and(department.name.lt(name));
+                        bb.and(nameExpr.lt(name));
                     }
                 }
                 break;
@@ -155,9 +168,16 @@ public class DepartmentRepositoryImpl implements DepartmentRepositoryCustom {
                     new OrderSpecifier<?>[]{department.establishedDate.asc(), department.id.asc()} :
                     new OrderSpecifier<?>[]{department.establishedDate.desc(), department.id.desc()};
         } else {
-            return asc ?
-                    new OrderSpecifier<?>[]{department.name.asc(), department.id.asc()} :
-                    new OrderSpecifier<?>[]{department.name.desc(), department.id.desc()};
+            StringExpression nameExpr = nameKo(); // 👈 여기!
+            return asc
+                    ? new OrderSpecifier<?>[]{
+                    new OrderSpecifier<>(Order.ASC, nameExpr),
+                    department.id.asc()
+            }
+                    : new OrderSpecifier<?>[]{
+                    new OrderSpecifier<>(Order.DESC, nameExpr),
+                    department.id.desc()
+            };
         }
     }
 }
