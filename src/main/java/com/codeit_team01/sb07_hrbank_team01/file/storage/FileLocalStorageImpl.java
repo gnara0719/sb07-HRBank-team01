@@ -100,7 +100,7 @@ public class FileLocalStorageImpl implements FileLocalStorage {
         if (parent != null && !parent.exists()) {
             parent.mkdirs();
         }
-        return new FileWriter(path.toFile());
+        return Files.newBufferedWriter(path, StandardCharsets.UTF_8);
     }
 
     @Override
