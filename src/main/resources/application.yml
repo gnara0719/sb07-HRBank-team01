@@ -11,7 +11,7 @@ spring:
   jpa:
     database: postgresql
     hibernate:
-      ddl-auto: validate
+      ddl-auto: create
 
     properties:
       hibernate:
@@ -35,3 +35,4 @@ logging:
   level:
     root: INFO
     com.codeit_team01.sb07_hrbank_team01: DEBUG
+
