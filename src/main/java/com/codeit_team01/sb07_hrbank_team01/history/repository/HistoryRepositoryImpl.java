@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import java.time.Instant;
 import java.util.List;
 
-import static com.codeit_team01.sb07_hrbank_team01.employee.entity.QEmployee.employee;
 import static com.codeit_team01.sb07_hrbank_team01.history.entity.QHistory.history;
 
 @RequiredArgsConstructor

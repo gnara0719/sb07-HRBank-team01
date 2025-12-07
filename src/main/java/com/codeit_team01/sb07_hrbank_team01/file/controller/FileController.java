@@ -1,5 +1,6 @@
 package com.codeit_team01.sb07_hrbank_team01.file.controller;
 
+import com.codeit_team01.sb07_hrbank_team01.common.doc.FileControllerDocs;
 import com.codeit_team01.sb07_hrbank_team01.file.dto.FileResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.file.service.MetaFileService;
 import com.codeit_team01.sb07_hrbank_team01.file.storage.FileLocalStorage;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/files")
 @RequiredArgsConstructor
-public class FileController {
+public class FileController implements FileControllerDocs {
 
     private final MetaFileService metaFileService;
     private final FileLocalStorage fileLocalStorage;
