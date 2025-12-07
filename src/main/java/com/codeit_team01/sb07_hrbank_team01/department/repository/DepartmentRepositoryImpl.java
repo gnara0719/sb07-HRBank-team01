@@ -8,7 +8,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import java.text.Collator;
 import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
 
 import static com.codeit_team01.sb07_hrbank_team01.department.entity.QDepartment.department;
 
@@ -25,21 +29,13 @@ public class DepartmentRepositoryImpl implements DepartmentRepositoryCustom {
     //department.description 이러면 department테이블의 description 컬럼이라 생각하자
 
     @Override
-    public Page<Department> search(String kw,
-                                   String sortField,
-                                   String sortDirection,
-                                   String cursor,
-                                   Long idAfter,
-                                   Pageable pageable) {
+    public Page<Department> search(String kw, String sortField, String sortDirection,
+                                   String cursor, Long idAfter, Pageable pageable) {
 
-        // null이면 전체 ,기본값name, asc true기본값
         String keyword = (kw == null || kw.isBlank()) ? null : kw.trim();
         String sf = (sortField == null || sortField.isBlank()) ? "name" : sortField.trim();
         boolean asc = !"desc".equalsIgnoreCase(sortDirection);
 
-        //  where BooleanBuilder 조건이다
-        //키워드가 있으면 이름 또는 부서설명 동시에 검사
-        //containsIgnoreCase 대소문자 무시하고 %keyword% 하겠다
         BooleanBuilder where = new BooleanBuilder();
         if (keyword != null) {
             where.and(
@@ -48,27 +44,27 @@ public class DepartmentRepositoryImpl implements DepartmentRepositoryCustom {
             );
         }
 
-        //  buildCursorPredicate로 커서가 있으면 분기4개 where 조건 추가
-        // 없으면 cursorPred = null 이라  조건추가 x
-        BooleanBuilder cursorPred = buildCursorPredicate(sf, asc, cursor, idAfter);
-        if (cursorPred != null) where.and(cursorPred);
+        // 이름 정렬은 커서 비활성 + 메모리 정렬로 전환
+        boolean nameSortWithMemory = "name".equals(sf);
 
-         /*항상 정렬 컬럼(예: name 또는 establishedDate) 뒤에 id를 두 번째 정렬 키로
-          오름차: ORDER BY name ASC id ASC
-          내림차: ORDER BY name DESC id DESC*/
-        //정렬 기준을 담은 배열
-        OrderSpecifier<?>[] orders = buildOrders(sf, asc);
+        OrderSpecifier<?>[] orders = nameSortWithMemory
+                ? new OrderSpecifier<?>[]{ department.id.asc() } // DB에서는 임시로 ID 정렬만
+                : buildOrders(sf, asc); // 날짜 등 다른 정렬은 기존 그대로
 
-        // 조회 필요한 쿼리 때려박기
-        var content = queryFactory
+        int pageSize = pageable.getPageSize();
+        int pageNumber = pageable.getPageNumber();
+        int fetchSize = nameSortWithMemory ? pageSize * 3 : pageSize; // 메모리 정렬용 버퍼
+
+        // DB에서 일단 가져오기 (offset/limit 그대로 사용)
+        var fetched = queryFactory
                 .selectFrom(department)
                 .where(where)
                 .orderBy(orders)
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .limit(fetchSize)
                 .fetch();
 
-
+        // total
         Long total = queryFactory
                 .select(department.count())
                 .from(department)
@@ -77,7 +73,30 @@ public class DepartmentRepositoryImpl implements DepartmentRepositoryCustom {
                                 .or(department.description.containsIgnoreCase(keyword))
                 )
                 .fetchOne();
-        return new PageImpl<>(content, pageable, total == null ? 0L : total);
+        long totalElements = (total == null ? 0L : total);
+
+        List<Department> content;
+
+        if (nameSortWithMemory) {
+            // 메모리에서 정확한 가나다 정렬
+            Collator coll = Collator.getInstance(Locale.KOREAN);
+            coll.setStrength(Collator.PRIMARY);
+
+            Comparator<Department> cmp = Comparator
+                    .comparing(Department::getName, Comparator.nullsLast(coll))
+                    .thenComparing(Department::getId); // tie-breaker
+
+            fetched.sort(asc ? cmp : cmp.reversed());
+
+            // offset/limit로 자르기
+            int from = pageNumber * pageSize;
+            int to = Math.min(from + pageSize, fetched.size());
+            content = (from >= fetched.size()) ? List.of() : fetched.subList(from, to);
+        } else {
+            content = fetched;
+        }
+
+        return new PageImpl<>(content, pageable, totalElements);
     }
 
     //커서가없으면 아무것도 안한다
