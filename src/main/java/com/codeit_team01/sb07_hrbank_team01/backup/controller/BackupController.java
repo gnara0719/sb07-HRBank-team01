@@ -4,6 +4,7 @@ import com.codeit_team01.sb07_hrbank_team01.backup.dto.request.BackupRequestDto;
 import com.codeit_team01.sb07_hrbank_team01.backup.dto.response.BackupResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.backup.entity.BackupStatus;
 import com.codeit_team01.sb07_hrbank_team01.backup.service.BackupService;
+import com.codeit_team01.sb07_hrbank_team01.common.doc.BackupControllerDocs;
 import com.codeit_team01.sb07_hrbank_team01.common.dto.response.PageResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ import java.time.Instant;
 @RestController
 @RequestMapping("/api/backups")
 @RequiredArgsConstructor
-public class BackupController{
+public class BackupController implements BackupControllerDocs {
 
   private final BackupService backupService;
 

@@ -1,5 +1,6 @@
 package com.codeit_team01.sb07_hrbank_team01.department.controller;
 
+import com.codeit_team01.sb07_hrbank_team01.common.doc.DepartmentControllerDocs;
 import com.codeit_team01.sb07_hrbank_team01.common.dto.response.PageResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.department.request.DepartmentCreateRequestDto;
 import com.codeit_team01.sb07_hrbank_team01.department.request.DepartmentSearchRequestDto;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/departments")
-public class DepartmentController {
+public class DepartmentController implements DepartmentControllerDocs {
 
     private final DepartmentService departmentService;
 

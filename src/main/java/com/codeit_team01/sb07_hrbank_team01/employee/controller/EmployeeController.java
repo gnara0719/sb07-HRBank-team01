@@ -1,5 +1,6 @@
 package com.codeit_team01.sb07_hrbank_team01.employee.controller;
 
+import com.codeit_team01.sb07_hrbank_team01.common.doc.EmployeeControllerDocs;
 import com.codeit_team01.sb07_hrbank_team01.employee.dto.request.*;
 import com.codeit_team01.sb07_hrbank_team01.employee.dto.response.EmployeeDistributionResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.employee.dto.response.EmployeePageResponseDto;
@@ -22,7 +23,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "/api/employees")
-public class EmployeeController {
+public class EmployeeController implements EmployeeControllerDocs {
     private final EmployeeService employeeService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

@@ -2,27 +2,16 @@ spring:
   application:
     name: sb07_HRBank_team01
 
-#  h2:
-#    console:
-#      enabled: true # 콘솔 실행
-#      path: /h2-console #default 접속주소 localhost:8080/h2-console
-#
-#  datasource:
-#    url: jdbc:h2:~/hrbank;MODE=PostgreSQL
-#    username: sa # default
-#    password:
-#    driver-class-name: org.h2.Driver
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
 
-  datasource:
-    url: jdbc:postgresql://localhost:5432/hrbank
-    username: hrbank_user
-    password: hrbank1234
-    driver-class-name: org.postgresql.Driver
 
   jpa:
     database: postgresql
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
 
     properties:
       hibernate:
@@ -46,3 +35,4 @@ logging:
   level:
     root: INFO
     com.codeit_team01.sb07_hrbank_team01: DEBUG
+

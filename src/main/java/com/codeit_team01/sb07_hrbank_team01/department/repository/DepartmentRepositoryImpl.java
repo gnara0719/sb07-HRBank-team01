@@ -97,7 +97,7 @@ public class DepartmentRepositoryImpl implements DepartmentRepositoryCustom {
 
                 if (asc) {
                     if (hasIdAfter) {
-                      //where 설정 추가 gt( 커서(설립일)  초과 ) 조건
+                        //where 설정 추가 gt( 커서(설립일)  초과 ) 조건
                         //같다면(eq) id가 커서 id보다 큰(gt) 것만 가져온다
                         bb.and(
                                 department.establishedDate.gt(date)
@@ -148,7 +148,7 @@ public class DepartmentRepositoryImpl implements DepartmentRepositoryCustom {
         return bb;
     }
 
- //기준이 설립일 ,name 둘중 하나니
+    //기준이 설립일 ,name 둘중 하나니
     private OrderSpecifier<?>[] buildOrders(String sortField, boolean asc) {
         if ("establishedDate".equals(sortField)) {
             return asc ?
